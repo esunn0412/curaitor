@@ -13,7 +13,7 @@ const QuizPage = ({ params }: QuizPageProps) => {
   const { data } = useCourses();
 
   return (
-    <main>
+    <main >
       <h1 className="text-4xl font-bold uppercase mb-10">
         <span className="text-secondary">{course} / </span>
         Quiz

@@ -42,6 +42,7 @@ const QuizQuestion = ({ courseCode, index, question }: QuestionProps) => {
         {question.choices.map((c, j) => {
           const isGreen = question.isCorrect && question.answer === j;
           const isRed = question.isCorrect === false && question.selected === j;
+          const isCheck = question.selected && question.answer === j;
 
           return (
             <li
@@ -52,7 +53,7 @@ const QuizQuestion = ({ courseCode, index, question }: QuestionProps) => {
               <span>
                 {String.fromCharCode(j + 65)}. {c}
               </span>
-              {isGreen ? (
+              {isCheck ? (
                 <span>
                   <CheckIcon className="text-green-500" />
                 </span>

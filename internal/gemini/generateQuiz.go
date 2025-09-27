@@ -39,8 +39,8 @@ func GenerateQuizWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGr
 				slog.Info("newQuizCodesCh closed; worker exiting")
 				return
 			}
-			// TODO: Update to file path in config
-			root := "/Users/andrewlin/Desktop/curaitor/school/" + code
+
+			root := filepath.Join(cfg.SchoolPath, code)
 
 			var files []string
 
@@ -56,7 +56,7 @@ func GenerateQuizWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGr
 				return nil
 			})
 			if err != nil {
-				errCh <- fmt.Errorf("failed to retrievef file pathes")
+				errCh <- fmt.Errorf("failed to retrieve file paths: %w", err)
 			}
 			slog.Info("Walk through dir", slog.String("path", root))
 
