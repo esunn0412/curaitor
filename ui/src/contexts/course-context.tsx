@@ -25,21 +25,14 @@ export const CourseContextProvider = ({
   children,
 }: CourseContextProviderType) => {
   const [courseData, setCourseData] = useState<Course[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const fetchCourses = async () => {
       const res = await fetch("http://localhost:9000/courses");
       setCourseData((await res.json()) as Course[]);
-      setIsLoaded(true);
     };
     void fetchCourses();
   }, []);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    localStorage.setItem("courses", JSON.stringify(courseData));
-  }, [isLoaded, courseData]);
 
   return (
     <CourseContext.Provider

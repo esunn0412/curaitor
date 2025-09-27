@@ -4,6 +4,7 @@ dump/
 school/
 *.pdf
 courses.json
+cache.json
 quizzes.json
 cache.json
 backlinks.json

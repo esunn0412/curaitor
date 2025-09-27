@@ -18,3 +18,8 @@ export type Quiz = {
   course_code: string;
   questions: Question[];
 };
+
+export type CourseFile = {
+  file_path: string;
+  content: string;
+};

@@ -11,7 +11,7 @@ import (
 
 type CachedFiles struct {
 	Mu         *sync.Mutex
-	cachedFiles []model.CachedFile
+	CachedFiles []model.CachedFile
 }
 
 func LoadCache() (*CachedFiles, error) {
@@ -24,7 +24,7 @@ func LoadCache() (*CachedFiles, error) {
 
 	return &CachedFiles{
 		Mu:         &sync.Mutex{},
-		cachedFiles: caches,
+		CachedFiles: caches,
 	}, nil
 }
 
@@ -51,21 +51,21 @@ func loadCache() ([]model.CachedFile, error) {
 }
 
 func (c *CachedFiles) Add(cachedFile model.CachedFile) {
-	c.Mu.Lock() 
-	defer c.Mu.Unlock() 
-	c.cachedFiles = append(c.cachedFiles, cachedFile)
+	c.Mu.Lock()
+	defer c.Mu.Unlock()
+	c.CachedFiles = append(c.CachedFiles, cachedFile)
 	slog.Info("file cached", slog.String("file", cachedFile.FilePath))
 }
 
 func (c *CachedFiles) Save() error {
 	c.Mu.Lock() 
 	defer c.Mu.Unlock() 
-	data, err := json.MarshalIndent(c.cachedFiles, "", "  ")
+	dataBytes, err := json.MarshalIndent(c.CachedFiles, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal cache: %w", err)
 	}
 
-	if err := os.WriteFile("cache.json", data, 0644); err != nil {
+	if err := os.WriteFile("cache.json", dataBytes, 0644); err != nil {
 		return fmt.Errorf("failed to write cache file: %w", err)
 	}
 

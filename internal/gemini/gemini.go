@@ -3,8 +3,10 @@ package gemini
 import (
 	"context"
 	"curaitor/internal/config"
+	"curaitor/internal/data"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
 	"google.golang.org/genai"
@@ -67,5 +69,44 @@ func prepMessage(prompt string, filepaths ...string) ([]*genai.Content, error) {
 		genai.NewContentFromParts(parts, genai.RoleUser),
 	}
 
+	return msg, nil
+}
+
+func prepMessageFromCache(prompt string, caches *data.CachedFiles) ([]*genai.Content, error) {
+	caches.Mu.Lock()
+	defer caches.Mu.Unlock()
+	parts := make([]*genai.Part, 0, len(caches.CachedFiles)*2+1)
+
+	for _, cf := range caches.CachedFiles {
+		parts = append(
+			parts,
+			genai.NewPartFromText(fmt.Sprintf("File: %s", cf.FilePath)),
+		)
+		
+		fileType, err := mimetype.DetectFile(cf.FilePath) 
+		if fileType.Is("text/plain") {
+			continue
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to detect file type: %w", err)
+		}
+		
+		mime := fileType.String()
+		if strings.Contains(mime, ";") {
+			mime = strings.SplitN(mime, ";", 2)[0] // strip charset
+		}
+		
+		parts = append(parts, &genai.Part{
+			InlineData: &genai.Blob{
+				MIMEType: mime,
+				Data:     cf.Content,
+			},
+		})
+	}
+	parts = append(parts, genai.NewPartFromText(prompt))
+	msg := []*genai.Content{
+		genai.NewContentFromParts(parts, genai.RoleUser),
+	}
 	return msg, nil
 }

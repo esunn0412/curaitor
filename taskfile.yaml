@@ -3,11 +3,17 @@ version: 3
 tasks:
   clean:
     cmds:
-      - rm courses.json quizzes.json cache.json 2> /dev/null &
+      - rm courses.json quizzes.json cache.json backend.log frontend.log 2> /dev/null &
       - rm -rf school dump 2> /dev/null &
       - mkdir school dump
     silent: true
 
-  run:
+  run:backend:
     cmds:
-      - go run ./cmd/curaitor/main.go
+      - go run ./cmd/curaitor/main.go > backend.log 2>&1
+    silent: true
+
+  run:frontend:
+    cmds:
+      - cd ui && pnpm dev > frontend.log 2>&1
+    silent: true
