@@ -3,6 +3,4 @@
 dump/
 school/
 *.pdf
-
-ui/node_modules
-ui/.next
+courses.json
