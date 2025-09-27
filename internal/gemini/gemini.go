@@ -12,27 +12,13 @@ import (
 
 // sendMessage sends given message to Gemini and returns the
 // response as string. Use prepMessage to create messages.
-func sendMessage(cfg *config.Config, ctx context.Context, msg []*genai.Content) (string, error) {
+func sendMessage(cfg *config.Config, ctx context.Context, msg []*genai.Content, config *genai.GenerateContentConfig) (string, error) {
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
 		APIKey:  cfg.GeminiApiKey,
 		Backend: genai.BackendGeminiAPI,
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to create Gemini client: %w", err)
-	}
-
-	config := &genai.GenerateContentConfig{
-		ResponseMIMEType: "application/json",
-		ResponseSchema: &genai.Schema{
-			Type: genai.TypeObject,
-			Properties: map[string]*genai.Schema{
-				"course_code": {Type: genai.TypeString}, 
-				"desc": 	  {Type: genai.TypeString},
-				"file_type": {Type: genai.TypeString}, 
-				"title":     {Type: genai.TypeString},
-			},
-			PropertyOrdering: []string{"course_code", "desc", "file_type", "title"},
-		},
 	}
 
 	result, err := client.Models.GenerateContent(
