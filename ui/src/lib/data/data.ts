@@ -2,8 +2,8 @@ import { Course } from "../types";
 
 export const data: Course[] = [
   {
-    name: "Analysis of Algorithms",
-    code: "cs-326",
+    course_title: "Analysis of Algorithms",
+    course_code: "cs-326",
     numFiles: 5,
     quiz: [
       {
@@ -40,8 +40,8 @@ export const data: Course[] = [
   },
 
   {
-    name: "Intro to Computer Science",
-    code: "cs-170",
+    course_title: "Intro to Computer Science",
+    course_code: "cs-170",
     numFiles: 5,
     quiz: [
       {
@@ -77,8 +77,8 @@ export const data: Course[] = [
     ],
   },
   {
-    name: "Discrete Structure",
-    code: "cs-224",
+    course_title: "Discrete Structure",
+    course_code: "cs-224",
     numFiles: 5,
     quiz: [
       {

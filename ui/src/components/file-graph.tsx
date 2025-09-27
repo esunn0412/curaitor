@@ -42,7 +42,7 @@ const FileGraph = () => {
 export default FileGraph;
 
 const nodes: vis.Node[] = [
-  { id: 1, label: "cs-326/lectures/lecture-1.pdf" },
+  { id: 1, label: "CS370/lectures/lecture-1.pdf" },
   { id: 2, label: "cs-326/notes/note-3.pdf" },
   { id: 3, label: "cs-253/notes/note-3.pdf" },
   { id: 4, label: "cs-170/lectures/lecture-11.pdf" },

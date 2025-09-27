@@ -4,7 +4,7 @@ import CourseCard from "@/components/course-card";
 import useCourses from "@/hooks/use-courses";
 
 const Home = () => {
-  const { data } = useCourses();
+  const { courses: data } = useCourses();
 
   return (
     <main className="basis-2/3">

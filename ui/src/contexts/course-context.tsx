@@ -1,6 +1,5 @@
 "use client";
 
-import { data } from "@/lib/data";
 import { Course } from "@/lib/types";
 import {
   createContext,
@@ -12,8 +11,8 @@ import {
 } from "react";
 
 type CourseContextType = {
-  data: Course[];
-  setData: Dispatch<SetStateAction<Course[]>>;
+  courses: Course[];
+  setCourses: Dispatch<SetStateAction<Course[]>>;
 };
 
 export const CourseContext = createContext<CourseContextType | null>(null);
@@ -25,25 +24,26 @@ type CourseContextProviderType = {
 export const CourseContextProvider = ({
   children,
 }: CourseContextProviderType) => {
-  const [courseData, setCourseData] = useState(data);
+  const [courseData, setCourseData] = useState<Course[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    console.log("loading courses");
-    const localData = localStorage.getItem("courses");
-    if (localData) setCourseData(JSON.parse(localData));
-    setIsLoaded(true);
+    const fetchCourses = async () => {
+      const res = await fetch("http://localhost:9000/courses");
+      setCourseData((await res.json()) as Course[]);
+      setIsLoaded(true);
+    };
+    void fetchCourses();
   }, []);
 
   useEffect(() => {
     if (!isLoaded) return;
-    console.log("saving courses");
     localStorage.setItem("courses", JSON.stringify(courseData));
   }, [isLoaded, courseData]);
 
   return (
     <CourseContext.Provider
-      value={{ data: courseData, setData: setCourseData}}
+      value={{ courses: courseData, setCourses: setCourseData }}
     >
       {children}
     </CourseContext.Provider>

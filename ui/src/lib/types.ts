@@ -7,8 +7,14 @@ export type Question = {
 };
 
 export type Course = {
-  name: string;
-  code: string;
-  numFiles: number;
-  quiz: Question[];
+  course_title: string;
+  course_code: string;
+  desc: string;
+  // numFiles: number;
+  // quiz: Question[];
+};
+
+export type Quiz = {
+  course_code: string;
+  questions: Question[];
 };

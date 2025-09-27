@@ -1,6 +1,6 @@
 "use client";
 
-import useCourses from "@/hooks/use-courses";
+import useQuizzes from "@/hooks/use-quizzes";
 import { Question } from "@/lib/types";
 import { CheckIcon, XIcon } from "lucide-react";
 import { useState } from "react";
@@ -12,7 +12,7 @@ type QuestionProps = {
 };
 
 const QuizQuestion = ({ courseCode, index, question }: QuestionProps) => {
-  const { data, setData } = useCourses();
+  const { quizzes, setQuizzes } = useQuizzes();
   const [selected, setSelected] = useState(-1);
 
   const handleSelect = (option: number) => {
@@ -22,14 +22,16 @@ const QuizQuestion = ({ courseCode, index, question }: QuestionProps) => {
 
   const handleCheck = () => {
     if (!!question.selected) return;
-    const newData = structuredClone(data);
-    const q = newData.find((c) => c.code === courseCode)?.quiz[index];
+    const newQuizzes = structuredClone(quizzes);
+    const q = newQuizzes.find((c) => c.course_code === courseCode)?.questions[
+      index
+    ];
     if (!q) throw new Error("invalid course code");
 
     q.selected = selected;
     q.isCorrect = selected === q.answer;
 
-    setData(newData);
+    setQuizzes(newQuizzes);
   };
 
   return (
