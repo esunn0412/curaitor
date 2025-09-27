@@ -36,7 +36,7 @@ const FileGraph = () => {
     network.redraw();
   }, [course]);
 
-  return <div ref={graphRef} className="border basis-1/3"></div>;
+  return <div ref={graphRef} className="border-l basis-1/3"></div>;
 };
 
 export default FileGraph;
