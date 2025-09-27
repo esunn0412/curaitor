@@ -8,6 +8,10 @@ tasks:
       - mkdir school dump
     silent: true
 
-  run:
+  run:backend:
     cmds:
       - go run ./cmd/curaitor/main.go
+
+  run:frontend:
+    cmds:
+      - cd ui && pnpm dev

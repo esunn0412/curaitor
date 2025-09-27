@@ -61,3 +61,35 @@ func GetQuizHandler(quizzes *data.Quiz, newQuizCodesCh chan<- string) http.Handl
 		}
 	}
 }
+
+func RegenerateQuizHandler(newQuizCodesCh chan string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		course := r.URL.Query().Get("course")
+
+		newQuizCodesCh <- course
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET")
+		w.Header().Set("Content-Type", "text/json")
+	}
+}
+
+func GetFilesHandler(caches *data.CachedFiles) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		caches.Mu.Lock()
+		bytes, err := json.Marshal(caches.CachedFiles)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		caches.Mu.Unlock()
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET")
+		w.Header().Set("Content-Type", "text/json")
+
+		_, err = w.Write(bytes)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}

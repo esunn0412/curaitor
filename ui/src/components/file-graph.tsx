@@ -43,11 +43,14 @@ export default FileGraph;
 
 const nodes: vis.Node[] = [
   { id: 1, label: "CS370/lectures/lecture-1.pdf" },
-  { id: 2, label: "cs-326/notes/note-3.pdf" },
-  { id: 3, label: "cs-253/notes/note-3.pdf" },
-  { id: 4, label: "cs-170/lectures/lecture-11.pdf" },
-  { id: 5, label: "cs-255/lectures/lecture-5.pdf" },
-  { id: 6, label: "cs-224/lectures/lecture-5.pdf" },
+  { id: 2, label: "CS255/notes/note-3.pdf" },
+  { id: 3, label: "CS370/notes/note-3.pdf" },
+  { id: 4, label: "NBB302/lectures/lecture-11.pdf" },
+  { id: 5, label: "PSYC200W/lectures/lecture-5.pdf" },
+  { id: 6, label: "CS170/lectures/lecture-5.pdf" },
+  { id: 7, label: "CS170/lectures/lecture-12.pdf" },
+  { id: 8, label: "CS170/lectures/lecture-2.pdf" },
+  { id: 9, label: "CS170/lectures/lecture-4.pdf" },
 ];
 
 const edges: vis.Edge[] = [
@@ -56,6 +59,9 @@ const edges: vis.Edge[] = [
   { from: 2, to: 4 },
   { from: 2, to: 5 },
   { from: 3, to: 3 },
+  { from: 9, to: 2 },
+  { from: 6, to: 3 },
+  { from: 5, to: 4 },
 ];
 
 const options: vis.Options = {
