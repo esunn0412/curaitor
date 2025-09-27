@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	HeartbeatIntervalSeconds int
-	WatcherPath              string
+	DumpWatcherPath              string
 	SchoolPath               string
 	WatcherIntervalSeconds   int
 	NumParseFileWorkers      int
@@ -29,9 +29,9 @@ func New() (*Config, error) {
 		cfg.HeartbeatIntervalSeconds = heartbeatIntervalSeconds
 	}
 
-	watcherPath, ok := os.LookupEnv("CURAITOR_WATCHER_PATH")
+	dumpWatcherPath, ok := os.LookupEnv("CURAITOR_DUMP_WATCHER_PATH")
 	if ok {
-		cfg.WatcherPath = watcherPath
+		cfg.DumpWatcherPath = dumpWatcherPath
 	}
 
 	schoolPath, ok := os.LookupEnv("CURAITOR_SCHOOL_PATH")
@@ -72,7 +72,7 @@ func New() (*Config, error) {
 func defaultConfig() *Config {
 	return &Config{
 		HeartbeatIntervalSeconds: 60,
-		WatcherPath:              "./dump",
+		DumpWatcherPath:              "./dump",
 		SchoolPath:               "./school", 
 		WatcherIntervalSeconds:   5,
 		NumParseFileWorkers:      5,

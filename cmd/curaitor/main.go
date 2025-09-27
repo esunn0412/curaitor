@@ -35,7 +35,8 @@ func main() {
 	}
 
 	var (
-		newFilesCh  = make(chan string)
+		newDumpFilesCh  = make(chan string)
+		newMainFilesCh = make(chan string)
 		newQuizCodesCh = make(chan string) // Folders users want to generate quiz on 
 		errCh       = make(chan error)
 		wg          = &sync.WaitGroup{}
@@ -43,11 +44,12 @@ func main() {
 	)
 	defer cancel()
 
-	go fileops.StartDumpWatcher(cfg, ctx, newFilesCh, errCh)
+	go fileops.StartWatcher(cfg.DumpWatcherPath, cfg.WatcherIntervalSeconds, ctx, newDumpFilesCh, errCh)
+	go fileops.StartWatcher(cfg.SchoolPath, cfg.WatcherIntervalSeconds, ctx, newMainFilesCh, errCh)
 
 	for range cfg.NumParseFileWorkers {
 		wg.Add(1)
-		go gemini.ParseFileWorker(cfg, ctx, wg, courses, newFilesCh, errCh)
+		go gemini.ParseFileWorker(cfg, ctx, wg, courses, newDumpFilesCh, errCh)
 	}
 
 	// TODO: Refactor into config
@@ -73,7 +75,7 @@ func main() {
 			slog.Error("error", slog.Any("error", err))
 		case <-ctx.Done():
 			slog.Info("shutting down")
-			close(newFilesCh)
+			close(newDumpFilesCh)
 			close(errCh)
 			wg.Wait()
 			return

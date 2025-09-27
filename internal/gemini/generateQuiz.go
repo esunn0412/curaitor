@@ -11,10 +11,34 @@ import (
 	"log/slog"
 	"path/filepath"
 	"sync"
+
+	"google.golang.org/genai"
 )
 
 func GenerateQuizWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup, quizzes *data.Quiz, newQuizCodesCh <-chan string, errCh chan<- error) {
 	defer wg.Done()
+	var genai_config = &genai.GenerateContentConfig{
+		ResponseMIMEType: "application/json", 
+		ResponseSchema: &genai.Schema{
+			Type: genai.TypeObject, 
+			Properties: map[string]*genai.Schema{
+				"name":  {Type: genai.TypeString},
+				"code":  {Type: genai.TypeString},
+				"numFiles": {Type: genai.TypeInteger},
+				"qaPairs": {
+					Type: genai.TypeArray,
+					Items: &genai.Schema{
+						Type: genai.TypeObject,
+						Properties: map[string]*genai.Schema{
+							"question": {Type: genai.TypeString},
+							"choices": {Type: genai.TypeArray, Items: &genai.Schema{Type: genai.TypeString}},
+							"answer":   {Type: genai.TypeString},
+						},
+					},
+				},
+			},
+		},
+	}
 
 	for {
 		select {
@@ -49,7 +73,7 @@ func GenerateQuizWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGr
 				continue
 			}
 
-			res, err := sendMessage(cfg, ctx, msg)
+			res, err := sendMessage(cfg, ctx, msg, genai_config)
 			if err != nil {
 				errCh <- fmt.Errorf("failed to send message to Gemini: %w", err)
 				continue
@@ -83,8 +107,7 @@ func GenerateQuizWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGr
 }
 
 const generateQuestionPrompt = `
-You are given 
-a set of input documents about a college course. 
+You are given a set of input documents about a college course. 
 Your task is to carefully read and understand the content, 
 then generate 10 question-and-answer pairs 
 that capture the most important and
