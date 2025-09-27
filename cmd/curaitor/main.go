@@ -36,6 +36,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	caches, err := data.LoadCache()
+	if err != nil {
+		slog.Error("failed to load cache", slog.Any("error", err))
+		os.Exit(1)
+	}
+
 	var (
 		newDumpFilesCh = make(chan string)
 		newMainFilesCh = make(chan string)
@@ -50,8 +56,9 @@ func main() {
 	go fileops.StartWatcher(cfg.SchoolPath, cfg.WatcherIntervalSeconds, ctx, newMainFilesCh, errCh)
 
 	for range cfg.NumParseFileWorkers {
-		wg.Add(1)
-		go gemini.ParseFileWorker(cfg, ctx, wg, courses, newDumpFilesCh, errCh)
+		wg.Add(2)
+		go gemini.ParseDumpFileWorker(cfg, ctx, wg, courses, newDumpFilesCh, errCh)
+		go gemini.ParseMainFileWorker(cfg, ctx, wg, caches, newMainFilesCh, errCh)
 	}
 
 	for range cfg.NumGenerateQuizWorkers {
@@ -81,6 +88,8 @@ func main() {
 		case <-ctx.Done():
 			slog.Info("shutting down")
 			close(newDumpFilesCh)
+			close(newMainFilesCh)
+			close(newQuizCodesCh)
 			close(errCh)
 			wg.Wait()
 			return
