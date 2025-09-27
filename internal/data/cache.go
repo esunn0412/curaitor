@@ -51,8 +51,8 @@ func loadCache() ([]model.CachedFile, error) {
 }
 
 func (c *CachedFiles) Add(cachedFile model.CachedFile) {
-	c.Mu.Lock() 
-	defer c.Mu.Unlock() 
+	c.Mu.Lock()
+	defer c.Mu.Unlock()
 	c.CachedFiles = append(c.CachedFiles, cachedFile)
 	slog.Info("file cached", slog.String("file", cachedFile.FilePath))
 }
@@ -65,7 +65,7 @@ func (c *CachedFiles) Save() error {
 		return fmt.Errorf("failed to marshal cache: %w", err)
 	}
 
-	if err := os.WriteFile("cache.json", data, 0644); err != nil {
+	if err := os.WriteFile("cache.json", dataBytes, 0644); err != nil {
 		return fmt.Errorf("failed to write cache file: %w", err)
 	}
 
