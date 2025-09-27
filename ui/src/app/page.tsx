@@ -3,14 +3,14 @@ import { data } from "@/lib/data";
 import Link from "next/link";
 import Tag from "@/component/tag";
 
-export default function Home() {
+const Home = () => {
   return (
     <main className="min-h-svh container mx-auto max-md:p-4 pt-40">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {data.map((q, i) => (
           <Link
             key={i}
-            href="#"
+            href={q.course.code}
             className="rounded-xl border hover:opacity-80 transition-all"
           >
             <div className="bg-overlay rounded-t-xl p-4">
@@ -29,6 +29,6 @@ export default function Home() {
       </div>
     </main>
   );
-}
+};
 
-
+export default Home;

@@ -1,6 +1,6 @@
 export const data: Quiz[] = [
   {
-    course: { name: "Analysis of Algorithms", code: "CS 326", files: 5 },
+    course: { name: "Analysis of Algorithms", code: "cs-326", files: 5 },
     questions: [
       {
         question: "Lorem ipsum",
@@ -35,7 +35,7 @@ export const data: Quiz[] = [
     ],
   },
   {
-    course: { name: "Human Computer Interaction", code: "CS 485-2", files: 6 },
+    course: { name: "Human Computer Interaction", code: "cs-485-2", files: 6 },
     questions: [
       {
         question: "Lorem ipsum",
@@ -60,7 +60,7 @@ export const data: Quiz[] = [
     ],
   },
   {
-    course: { name: "Information Security", code: "CS 485-5", files: 13 },
+    course: { name: "Information Security", code: "cs-485-5", files: 13 },
     questions: [
       {
         question: "Lorem ipsum",
@@ -80,7 +80,7 @@ export const data: Quiz[] = [
     ],
   },
   {
-    course: { name: "Computer Science Practicum", code: "CS 370", files: 12 },
+    course: { name: "Computer Science Practicum", code: "cs-370", files: 12 },
     questions: [
       {
         question: "Lorem ipsum",
