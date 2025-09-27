@@ -13,7 +13,9 @@
     "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-		"react-markdown": "^10.1.0"
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "vis-network": "^10.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

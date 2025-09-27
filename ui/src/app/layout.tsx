@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/nav";
 import { CourseContextProvider } from "@/contexts/course-context";
+import FileGraph from "@/components/file-graph";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,11 +28,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-tl from-cyan-100 to-transparent`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-svh`}
       >
+        <div className="fixed -bottom-20 -right-20 size-200 rounded-full bg-cyan-100 blur-[200px] -z-40" />
         <CourseContextProvider>
           <Nav />
-          {children}
+          <div className="flex pt-16 h-full">
+            {children}
+            <FileGraph />
+          </div>
         </CourseContextProvider>
       </body>
     </html>

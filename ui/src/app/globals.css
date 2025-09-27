@@ -30,5 +30,5 @@ body {
 }
 
 main {
-  @apply min-h-svh container mx-auto max-md:p-4 py-20;
+  @apply p-6 pb-20;
 }
