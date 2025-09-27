@@ -60,7 +60,7 @@ func (c *CachedFiles) Add(cachedFile model.CachedFile) {
 func (c *CachedFiles) Save() error {
 	c.Mu.Lock() 
 	defer c.Mu.Unlock() 
-	data, err := json.MarshalIndent(c.CachedFiles, "", "  ")
+	dataBytes, err := json.MarshalIndent(c.CachedFiles, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal cache: %w", err)
 	}
