@@ -25,15 +25,15 @@ func ParseFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup
 		ResponseSchema: &genai.Schema{
 			Type: genai.TypeObject,
 			Properties: map[string]*genai.Schema{
-				"course_code": {Type: genai.TypeString}, 
-				"desc": 	  {Type: genai.TypeString},
-				"file_type": {Type: genai.TypeString}, 
-				"title":     {Type: genai.TypeString},
+				"course_code":  {Type: genai.TypeString},
+				"course_title": {Type: genai.TypeString},
+				"desc":         {Type: genai.TypeString},
+				"file_type":    {Type: genai.TypeString},
+				"title":        {Type: genai.TypeString},
 			},
-			PropertyOrdering: []string{"course_code", "desc", "file_type", "title"},
+			PropertyOrdering: []string{"course_code", "course_title", "desc", "file_type", "title"},
 		},
-	};
-		
+	}
 
 	for {
 		select {
@@ -46,7 +46,7 @@ func ParseFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup
 					continue
 				}
 
-				dirTreeStr := formatDirTree(dirTree)
+				dirTreeStr = formatDirTree(dirTree)
 				slog.Info("directory tree", slog.String("tree", dirTreeStr))
 			} else {
 				dirTreeStr = "/school (no subdirectories)"
@@ -68,7 +68,7 @@ func ParseFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup
 
 			fileInfo := model.FileInfo{}
 			var destPath string
-			var destFileName string = filepath.Base(file) 
+			destFileName := filepath.Base(file)
 
 			if err := json.Unmarshal([]byte(res), &fileInfo); err != nil {
 				errCh <- fmt.Errorf("failed to parse Gemini response: %w", err)
@@ -76,17 +76,17 @@ func ParseFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup
 				continue
 			}
 
-			// if no course code is found move to unknown and report error
+			// if file is a syllabus
 			if fileInfo.Code != "" && fileInfo.Desc != "" {
 				if !courses.Exists(fileInfo.Code) {
-					courses.Add(model.CourseInfo{Code: fileInfo.Code, Desc: fileInfo.Desc})
+					courses.Add(model.CourseInfo{Code: fileInfo.Code, Desc: fileInfo.Desc, CourseTitle: fileInfo.CourseTitle})
 					if err := courses.Save(); err != nil {
 						errCh <- fmt.Errorf("failed to save courses: %w", err)
 					}
-					destPath = filepath.Join(cfg.SchoolPath, fileInfo.Code, "syllabi")
+					destPath = filepath.Join(cfg.SchoolPath, fileInfo.Code)
+					destFileName = "syllabus" + filepath.Ext(file)
 				}
 			}
-
 
 			// if file is not a syllabus
 			if fileInfo.FileType != "" && fileInfo.Title != "" {
@@ -102,14 +102,14 @@ func ParseFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup
 
 			if err := os.MkdirAll(destPath, os.ModePerm); err != nil {
 				errCh <- fmt.Errorf("failed to create directory %s: %w", destPath, err)
+				continue
 			}
 			if err := fileops.MoveFile(file, destPath, destFileName); err != nil {
 				errCh <- fmt.Errorf("failed to move file to %s: %w", destPath, err)
+				continue
 			}
-			slog.Info("file moved to course syllabi", slog.String("file", file), slog.String("course", fileInfo.Code))
-			continue
+			slog.Info("file moved", slog.String("file", file), slog.String("destination", destPath))
 
-			
 		case <-ctx.Done():
 			slog.Info("worker done")
 			return
@@ -126,6 +126,7 @@ func parseFilePrompt(dirTreeStr string, coursesStr string) string {
 	Return strictly as a valid JSON object of form below:
 	{
 		"course_code": "CS370",   
+		"course_title": "Computer Science Practicum"
 		"desc": "Covers AI foundations including search, logic, and learning.",
 		"file_type": "assignment",
 		"title": "Homework3-Search-Algorithms"
@@ -135,6 +136,7 @@ func parseFilePrompt(dirTreeStr string, coursesStr string) string {
 
 	{
 		"course_code": "CS370",
+		"course_title": "Computer Science Practicum"
 		"desc": "Covers AI foundations including search, logic, and learning.",
 		"file_type": "",
 		"title": ""
@@ -150,6 +152,7 @@ func parseFilePrompt(dirTreeStr string, coursesStr string) string {
 	If the file is NOT a syllabus, leave "desc" empty and return:
 	{
 		"course_code": "CS370",
+		"course_title": ""
 		"desc": "",
 		"file_type": "assignment",
 		"title": "Homework3-Search-Algorithms"
@@ -172,47 +175,46 @@ func parseFilePrompt(dirTreeStr string, coursesStr string) string {
 
 // Convert the directory tree map to a readable string format
 func formatDirTree(dirTree map[string][]string) string {
-    if len(dirTree) == 0 {
-        return "No courses found under school directory."
-    }
-    
-    var result strings.Builder
-    
-    // Sort course codes for consistent output
-    var courses []string
-    for course := range dirTree {
-        courses = append(courses, course)
-    }
-    sort.Strings(courses)
-    
-    for _, course := range courses {
-        categories := dirTree[course]
-        result.WriteString(fmt.Sprintf("%s/", course))
-        
-        if len(categories) == 0 {
-            result.WriteString(" (no subdirectories)")
-        } else {
-            for i, category := range categories {
-                if i == 0 {
-                    result.WriteString(fmt.Sprintf(" %s/", category))
-                } else {
-                    result.WriteString(fmt.Sprintf(", %s/", category))
-                }
-            }
-        }
-        result.WriteString("\n")
-    }
-    
-    return result.String()
-}
+	if len(dirTree) == 0 {
+		return "No courses found under school directory."
+	}
 
+	var result strings.Builder
+
+	// Sort course codes for consistent output
+	var courses []string
+	for course := range dirTree {
+		courses = append(courses, course)
+	}
+	sort.Strings(courses)
+
+	for _, course := range courses {
+		categories := dirTree[course]
+		result.WriteString(fmt.Sprintf("%s/", course))
+
+		if len(categories) == 0 {
+			result.WriteString(" (no subdirectories)")
+		} else {
+			for i, category := range categories {
+				if i == 0 {
+					result.WriteString(fmt.Sprintf(" %s/", category))
+				} else {
+					result.WriteString(fmt.Sprintf(", %s/", category))
+				}
+			}
+		}
+		result.WriteString("\n")
+	}
+
+	return result.String()
+}
 
 func GetDirTree(root string) (map[string][]string, error) {
 	tree := make(map[string][]string)
 
 	entries, err := os.ReadDir(root)
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
 
 	for _, entry := range entries {
@@ -223,10 +225,10 @@ func GetDirTree(root string) (map[string][]string, error) {
 		coursePath := filepath.Join(root, entry.Name())
 		subentries, err := os.ReadDir(coursePath)
 		if err != nil {
-			return nil, err 
+			return nil, err
 		}
 
-		var subdirs []string 
+		var subdirs []string
 		for _, subentry := range subentries {
 			if subentry.IsDir() {
 				subdirs = append(subdirs, subentry.Name())

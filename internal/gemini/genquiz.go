@@ -43,12 +43,12 @@ func GenerateQuizWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGr
 			root := filepath.Join(cfg.SchoolPath, code)
 
 			var files []string
-			
+
 			err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 				if err != nil {
 					slog.Error("Error retrieving file paths.")
 				}
-				if !d.IsDir() { // Check if it's a file
+				if !d.IsDir() {
 					files = append(files, path)
 				}
 				return nil
@@ -70,8 +70,8 @@ func GenerateQuizWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGr
 				continue
 			}
 
-			qaPairs := []model.Question{}
-			if err := json.Unmarshal([]byte(res), &qaPairs); err != nil {
+			questions := []model.Question{}
+			if err := json.Unmarshal([]byte(res), &questions); err != nil {
 				errCh <- fmt.Errorf("failed to unmarshal Gemini response: %w", err)
 				continue
 			}
@@ -79,7 +79,7 @@ func GenerateQuizWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGr
 			// iniatilize a quiz struct
 			var quiz model.QuizInfo
 			quiz.Code = code
-			quiz.QaPairs = qaPairs
+			quiz.Questions = questions
 
 			// TODO: Handle the deletion of previous quiz
 			quizzes.Add(quiz)

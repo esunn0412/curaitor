@@ -1,0 +1,13 @@
+version: 3
+
+tasks:
+  clean:
+    cmds:
+      - rm courses.json quizzes.json
+      - rm -rf school dump
+      - mkdir school dump
+    silent: true
+
+  run:
+    cmds:
+      - go run ./cmd/curaitor/main.go
