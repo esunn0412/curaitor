@@ -1,0 +1,16 @@
+.study-guide {
+  font-size: 17;
+  text-align: 10px;
+
+  h1 {
+    font-weight: bold;
+    font-size: 40;
+    margin-top: 20;
+  }
+
+  h2 {
+    font-weight: bold;
+    font-size: 30;
+    margin-top: 20;
+  }
+}

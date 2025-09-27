@@ -22,9 +22,13 @@
 }
 
 * {
-  @apply border-border;
+  @apply border-border outline-border;
 }
 
 body {
   @apply bg-background text-primary;
+}
+
+main {
+  @apply min-h-svh container mx-auto max-md:p-4 py-20;
 }
