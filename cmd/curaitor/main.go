@@ -27,17 +27,22 @@ func main() {
 		slog.Error("failed to load courses", slog.Any("error", err))
 		os.Exit(1)
 	}
-	
-	quizzes, err := data.LoadQuiz()
-	if err != nil {
-		slog.Error("failed to load quizzes", slog.Any("error", err)) // Erroring
+
+	if err := os.MkdirAll(cfg.SchoolPath, os.ModePerm); err != nil {
+		slog.Error("failed to create school path", slog.Any("error", err))
 		os.Exit(1)
 	}
+	
+	// quizzes, err := data.LoadQuiz()
+	// if err != nil {
+	// 	slog.Error("failed to load quizzes", slog.Any("error", err)) // Erroring
+	// 	os.Exit(1)
+	// }
 
 	var (
 		newDumpFilesCh  = make(chan string)
 		newMainFilesCh = make(chan string)
-		newQuizCodesCh = make(chan string) // Folders users want to generate quiz on 
+		// newQuizCodesCh = make(chan string) // Folders users want to generate quiz on 
 		errCh       = make(chan error)
 		wg          = &sync.WaitGroup{}
 		ctx, cancel = signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -53,16 +58,16 @@ func main() {
 	}
 
 	// TODO: Refactor into config
-	const numGenerateQuizWorker = 5
+	// const numGenerateQuizWorker = 5
 	
-	for range(numGenerateQuizWorker) {
-		wg.Add(1)
-		go gemini.GenerateQuizWorker(cfg, ctx, wg, quizzes, newQuizCodesCh, errCh)
-	}
+	// for range(numGenerateQuizWorker) {
+	// 	wg.Add(1)
+	// 	go gemini.GenerateQuizWorker(cfg, ctx, wg, quizzes, newQuizCodesCh, errCh)
+	// }
 
 	// Dummy get request that gives a course code
-	const code = "CS370"
-	newQuizCodesCh <- code
+	// const code = "CS370"
+	// newQuizCodesCh <- code
 
 	heartbeat := time.NewTicker(time.Duration(cfg.HeartbeatIntervalSeconds) * time.Second)
 	defer heartbeat.Stop()
@@ -76,6 +81,8 @@ func main() {
 		case <-ctx.Done():
 			slog.Info("shutting down")
 			close(newDumpFilesCh)
+			close(newMainFilesCh)
+			// close(newQuizCodesCh)
 			close(errCh)
 			wg.Wait()
 			return

@@ -9,7 +9,7 @@ import (
 	"github.com/radovskyb/watcher"
 )
 
-func StartWatcher(path string, watcherIntervalSeconds int, ctx context.Context, newMainFilesCh chan<- string, errCh chan<- error) {
+func StartWatcher(path string, watcherIntervalSeconds int, ctx context.Context, newFilesCh chan<- string, errCh chan<- error) {
 	w := watcher.New() 
 	w.FilterOps(watcher.Create) 
 
@@ -17,7 +17,7 @@ func StartWatcher(path string, watcherIntervalSeconds int, ctx context.Context, 
 		errCh <- fmt.Errorf("failed to add watcher path: %w", err)
 	}
 
-	go watcherLoop(ctx, newMainFilesCh, w)
+	go watcherLoop(ctx, newFilesCh, w)
 
 	slog.Info("main watcher started")
 
@@ -26,7 +26,7 @@ func StartWatcher(path string, watcherIntervalSeconds int, ctx context.Context, 
 	}
 }
 
-func watcherLoop(ctx context.Context, newDumpFilesCh chan<- string, w *watcher.Watcher) {
+func watcherLoop(ctx context.Context, newFilesCh chan<- string, w *watcher.Watcher) {
 	w.Wait()
 
 	for {
@@ -34,7 +34,7 @@ func watcherLoop(ctx context.Context, newDumpFilesCh chan<- string, w *watcher.W
 		case event := <-w.Event:
 			if !event.IsDir() {
 				slog.Info("file added", slog.String("file", event.Path))
-				newDumpFilesCh <- event.Path
+				newFilesCh <- event.Path
 			}
 		case err := <-w.Error:
 			slog.Error("error in watcher", slog.Any("error", err))
