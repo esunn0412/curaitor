@@ -28,11 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-cyan-50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-svh`}
       >
+        <div className="fixed -bottom-20 -right-20 size-200 rounded-full bg-cyan-100 blur-[200px] -z-40" />
         <CourseContextProvider>
           <Nav />
-          <div className="flex">
+          <div className="flex pt-16 h-full">
             {children}
             <FileGraph />
           </div>

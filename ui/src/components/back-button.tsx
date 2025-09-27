@@ -8,7 +8,7 @@ const BackButton = () => {
   return (
     <button
       onClick={router.back}
-      className="cursor-pointer p-5 font-semibold text-secondary flex items-center gap-1"
+      className="cursor-pointer mt-5 ml-5 font-semibold text-secondary flex items-center gap-1"
     >
       <ChevronLeftIcon size={20} />
       Back

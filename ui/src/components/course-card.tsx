@@ -10,7 +10,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
   return (
     <Link
       href={course.code}
-      className="rounded-xl border h-fit hover:opacity-80 transition-all"
+      className="rounded-xl border h-fit hover:opacity-80 hover:shadow-md transition-all"
     >
       <div className="bg-overlay rounded-t-xl p-4">
         <p className="font-bold mr-3 text-xl uppercase">{course.code}</p>

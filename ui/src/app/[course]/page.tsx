@@ -1,6 +1,7 @@
 import Link from "next/link";
 import "./study-guide.css";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type CoursePageProps = {
   params: Promise<{ course: string }>;
@@ -26,13 +27,11 @@ const CoursePage = async ({ params }: CoursePageProps) => {
 export default CoursePage;
 
 const markdown = `
-# Study Guide
-
 ## Heading
 
 This is a sample markdown text.
 
-## List
+### List
 
 Here is a list of items:
 
@@ -40,7 +39,7 @@ Here is a list of items:
 -   Item 2
 -   Item 3
 
-## Table
+### Table
 
 | Column 1 | Column 2 | Column 3 |
 | --- | --- | --- |
@@ -52,7 +51,7 @@ Here is a list of items:
 const StudyGuide = () => {
   return (
     <article className="study-guide">
-      <Markdown>{markdown}</Markdown>
+      <Markdown remarkPlugins={[remarkGfm]}>{markdown}</Markdown>
     </article>
   );
 };
