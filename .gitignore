@@ -6,6 +6,7 @@ school/
 courses.json
 cache.json
 quizzes.json
+*.log
 
 ui/node_modules
 ui/.next
