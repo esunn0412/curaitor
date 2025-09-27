@@ -19,7 +19,7 @@ func StartWatcher(path string, watcherIntervalSeconds int, ctx context.Context, 
 
 	go watcherLoop(ctx, newFilesCh, w)
 
-	slog.Info("main watcher started")
+	slog.Info("watcher started", slog.String("path", path))
 
 	if err := w.Start(time.Duration(watcherIntervalSeconds) * time.Second); err != nil {
 		errCh <- fmt.Errorf("failed to start watcher: %w", err)

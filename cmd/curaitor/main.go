@@ -28,8 +28,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := os.MkdirAll(cfg.SchoolPath, os.ModePerm); err != nil {
-		slog.Error("failed to create school path", slog.Any("error", err))
+	quizzes, err := data.LoadQuiz()
+	if err != nil {
+		slog.Error("failed to load quizzes", slog.Any("error", err)) // Erroring
 		os.Exit(1)
 	}
 	
@@ -40,12 +41,12 @@ func main() {
 	// }
 
 	var (
-		newDumpFilesCh  = make(chan string)
+		newDumpFilesCh = make(chan string)
 		newMainFilesCh = make(chan string)
-		// newQuizCodesCh = make(chan string) // Folders users want to generate quiz on 
-		errCh       = make(chan error)
-		wg          = &sync.WaitGroup{}
-		ctx, cancel = signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+		newQuizCodesCh = make(chan string)
+		errCh          = make(chan error)
+		wg             = &sync.WaitGroup{}
+		ctx, cancel    = signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	)
 	defer cancel()
 
@@ -57,17 +58,15 @@ func main() {
 		go gemini.ParseFileWorker(cfg, ctx, wg, courses, newDumpFilesCh, errCh)
 	}
 
-	// TODO: Refactor into config
-	// const numGenerateQuizWorker = 5
-	
-	// for range(numGenerateQuizWorker) {
-	// 	wg.Add(1)
-	// 	go gemini.GenerateQuizWorker(cfg, ctx, wg, quizzes, newQuizCodesCh, errCh)
-	// }
+	for range cfg.NumGenerateQuizWorkers {
+		wg.Add(1)
+		go gemini.GenerateQuizWorker(cfg, ctx, wg, quizzes, newQuizCodesCh, errCh)
+	}
 
 	// Dummy get request that gives a course code
-	// const code = "CS370"
-	// newQuizCodesCh <- code
+	time.Sleep(20 * time.Second)
+	const code = "CS370"
+	newQuizCodesCh <- code
 
 	heartbeat := time.NewTicker(time.Duration(cfg.HeartbeatIntervalSeconds) * time.Second)
 	defer heartbeat.Stop()

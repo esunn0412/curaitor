@@ -10,10 +10,11 @@ import (
 
 type Config struct {
 	HeartbeatIntervalSeconds int
-	DumpWatcherPath              string
+	DumpWatcherPath          string
 	SchoolPath               string
 	WatcherIntervalSeconds   int
 	NumParseFileWorkers      int
+	NumGenerateQuizWorkers   int
 	GeminiApiKey             string
 }
 
@@ -36,7 +37,7 @@ func New() (*Config, error) {
 
 	schoolPath, ok := os.LookupEnv("CURAITOR_SCHOOL_PATH")
 	if ok {
-		cfg.SchoolPath = schoolPath 
+		cfg.SchoolPath = schoolPath
 	}
 
 	watcherIntervalSecondsStr, ok := os.LookupEnv("CURAITOR_WATCHER_INTERVAL_SECONDS")
@@ -72,9 +73,10 @@ func New() (*Config, error) {
 func defaultConfig() *Config {
 	return &Config{
 		HeartbeatIntervalSeconds: 60,
-		DumpWatcherPath:              "./dump",
-		SchoolPath:               "./school", 
+		DumpWatcherPath:          "./dump",
+		SchoolPath:               "./school",
 		WatcherIntervalSeconds:   5,
 		NumParseFileWorkers:      5,
+		NumGenerateQuizWorkers:   5,
 	}
 }
