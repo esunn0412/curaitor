@@ -12,6 +12,7 @@ import (
 )
 
 func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup, caches *data.CachedFiles, newMainFilesCh <-chan string, errCh chan<- error) {
+	defer wg.Done()
 	for {
 		select {
 		case file := <- newMainFilesCh:
@@ -33,6 +34,8 @@ func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitG
 			if err := caches.Save(); err != nil {
 				errCh <- fmt.Errorf("failed to save cache: %w", err)
 			}
+
+
 
 		case <- ctx.Done(): 
 			slog.Info("ParseMainFileWorker done")
