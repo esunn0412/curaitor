@@ -14,8 +14,10 @@ const CoursePage = async ({ params }: CoursePageProps) => {
       <h1 className="text-4xl font-bold uppercase mb-10">{course}</h1>
       <Link
         href={quizLink}
-        className="h-30 block w-full border rounded-xl bg-overlay mb-10"
-      ></Link>
+        className="h-30 block w-full border rounded-xl bg-overlay mb-10 p-4"
+      >
+        Quiz
+      </Link>
       <StudyGuide />
     </main>
   );
