@@ -39,6 +39,11 @@ func loadCourses() ([]model.CourseInfo, error) {
 		}
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
+	
+	// handle empty json file
+	if len(data) == 0 {
+		return courses, nil
+	}
 
 	if err := json.Unmarshal(data, &courses); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal courses: %w", err)

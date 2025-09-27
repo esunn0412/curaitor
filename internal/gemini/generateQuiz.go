@@ -66,7 +66,7 @@ func GenerateQuizWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGr
 			// iniatilize a quiz struct
 			var quiz model.QuizInfo
 			quiz.Code = code
-			quiz.QaPairs = qaPairs 
+			quiz.QaPairs = qaPairs
 			
 			// TODO: Handle the deletion of previous quiz 
 			quizzes.Add(quiz)
@@ -86,17 +86,19 @@ const generateQuestionPrompt = `
 You are given 
 a set of input documents about a college course. 
 Your task is to carefully read and understand the content, 
-then generate 10 question-and-answer pairs 
-that capture the most important and
+then generate 10 multiple choice questions with 4 corresponding answer choices with one correct answer.
+The question should capture the most important and
 relevant concepts from the documents. 
 Store each question and corresponding answer strictly in a json object, 
 and return only an array of the 10 json object with valid fields:
-Do not start and end with '''json .. '''
+Do not start and end with '''json ... '''
 - "question":
 	- Must be a string 
-	- Try to ask about concepts that can be confusing to beginner
+	- Try to ask about concepts that can be confusing to students
+- "choices":
+	- Must be an array of string of length 4.
 - "answer:
-	- Must be a string
-	- must corresponds to the question in the same json object
-ex: [{"question":"Calculate the triangle's area with sides 4 and 5cm.","answer":"10"}, {"question":"When is Abraham Lincoln's birthday?","answer":"February 12th, 1809"} ] 
+	- Must be type int
+	- The correct answer value should match with the correct choices
+ex: [{"question":"Calculate the triangle's area with sides 4 and 5cm.","choices":["3", "6","8", "10"],"answer":3}, {"question":"When is Abraham Lincoln's birthday?","choices":["February 12th, 1809","October 3rd, 2004", "January 1st, 2006", "August 28th, 1838"], "answer":"February 12th, 1809", "answer":0} ] 
 `
