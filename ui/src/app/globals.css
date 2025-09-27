@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --overlay: #e7e7e766;
+  --primary: #171717;
+  --secondary: #808080;
+  --tertiary: #c4c4c4;
+  --border: #dadada;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-overlay: var(--overlay);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-tertiary: var(--tertiary);
+  --color-border: var(--border);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  @apply border-border;
+}
+
+body {
+  @apply bg-background text-primary;
+}
