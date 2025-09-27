@@ -2,7 +2,6 @@ package fileops
 
 import (
 	"context"
-	"curaitor/internal/config"
 	"fmt"
 	"log/slog"
 	"time"
@@ -10,25 +9,24 @@ import (
 	"github.com/radovskyb/watcher"
 )
 
-func StartDumpWatcher(cfg *config.Config, ctx context.Context, newFilesCh chan<- string, errCh chan<- error) {
-	w := watcher.New()
-	w.FilterOps(watcher.Create)
+func StartWatcher(path string, watcherIntervalSeconds int, ctx context.Context, newMainFilesCh chan<- string, errCh chan<- error) {
+	w := watcher.New() 
+	w.FilterOps(watcher.Create) 
 
-	if err := w.AddRecursive(cfg.WatcherPath); err != nil {
+	if err := w.AddRecursive(path); err != nil {
 		errCh <- fmt.Errorf("failed to add watcher path: %w", err)
 	}
 
-	go watcherLoop(ctx, newFilesCh, w)
+	go watcherLoop(ctx, newMainFilesCh, w)
 
-	slog.Info("watcher started")
+	slog.Info("main watcher started")
 
-	if err := w.Start(time.Duration(cfg.WatcherIntervalSeconds) * time.Second); err != nil {
+	if err := w.Start(time.Duration(watcherIntervalSeconds) * time.Second); err != nil {
 		errCh <- fmt.Errorf("failed to start watcher: %w", err)
 	}
 }
 
-
-func watcherLoop(ctx context.Context, newFilesCh chan<- string, w *watcher.Watcher) {
+func watcherLoop(ctx context.Context, newDumpFilesCh chan<- string, w *watcher.Watcher) {
 	w.Wait()
 
 	for {
@@ -36,7 +34,7 @@ func watcherLoop(ctx context.Context, newFilesCh chan<- string, w *watcher.Watch
 		case event := <-w.Event:
 			if !event.IsDir() {
 				slog.Info("file added", slog.String("file", event.Path))
-				newFilesCh <- event.Path
+				newDumpFilesCh <- event.Path
 			}
 		case err := <-w.Error:
 			slog.Error("error in watcher", slog.Any("error", err))

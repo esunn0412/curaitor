@@ -14,10 +14,27 @@ import (
 	"sort"
 	"strings"
 	"sync"
+
+	"google.golang.org/genai"
 )
 
 func ParseFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup, courses *data.Courses, newFilesCh <-chan string, errCh chan<- error) {
 	defer wg.Done()
+	var genai_config = &genai.GenerateContentConfig{
+		ResponseMIMEType: "application/json",
+		ResponseSchema: &genai.Schema{
+			Type: genai.TypeObject,
+			Properties: map[string]*genai.Schema{
+				"course_code": {Type: genai.TypeString}, 
+				"desc": 	  {Type: genai.TypeString},
+				"file_type": {Type: genai.TypeString}, 
+				"title":     {Type: genai.TypeString},
+			},
+			PropertyOrdering: []string{"course_code", "desc", "file_type", "title"},
+		},
+	};
+		
+
 	for {
 		select {
 		case file := <-newFilesCh:
@@ -43,7 +60,7 @@ func ParseFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup
 				continue
 			}
 
-			res, err := sendMessage(cfg, ctx, msg)
+			res, err := sendMessage(cfg, ctx, msg, genai_config)
 			if err != nil {
 				errCh <- fmt.Errorf("failed to send message to Gemini: %w", err)
 				continue
@@ -152,7 +169,6 @@ func parseFilePrompt(dirTreeStr string, coursesStr string) string {
 	%s
 	`, dirTreeStr, coursesStr)
 }
-
 
 // Convert the directory tree map to a readable string format
 func formatDirTree(dirTree map[string][]string) string {
