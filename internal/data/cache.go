@@ -58,13 +58,9 @@ func (c *CachedFiles) Add(cachedFile model.CachedFile) {
 }
 
 func (c *CachedFiles) Save() error {
-	c.Mu.Lock()
-	defer c.Mu.Unlock()
-	data := make([]string, 0, len(c.CachedFiles))
-	for _, cf := range c.CachedFiles {
-		data = append(data, string(cf.FilePath))
-	}
-	dataBytes, err := json.MarshalIndent(data, "", "  ")
+	c.Mu.Lock() 
+	defer c.Mu.Unlock() 
+	data, err := json.MarshalIndent(c.CachedFiles, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal cache: %w", err)
 	}

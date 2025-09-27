@@ -9,7 +9,7 @@ const Home = () => {
   return (
     <main className="basis-2/3">
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {data.map((course, i) => (
+        {data?.map((course, i) => (
           <CourseCard key={i} course={course} />
         ))}
       </div>

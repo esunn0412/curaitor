@@ -1,7 +1,7 @@
 "use client";
 
 import useCourses from "@/hooks/use-courses";
-import { Course, Quiz } from "@/lib/types";
+import { Quiz } from "@/lib/types";
 import {
   createContext,
   Dispatch,
@@ -36,12 +36,12 @@ export const QuizContextProvider = ({
         return JSON.parse(localData) as Quiz;
       }
 
-      console.log("fetching", course);
       const res = await fetch(`http://localhost:9000/quiz?course=${course}`);
       return (await res.json()) as Quiz;
     };
 
     const fetchQuizzes = async () => {
+      if (!coursesData) return;
       const quizzes = await Promise.all(
         coursesData.map((course) => fetchQuiz(course.course_code)),
       );
