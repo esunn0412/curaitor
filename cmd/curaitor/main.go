@@ -42,10 +42,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	edges, err := data.LoadEdges()
+	if err != nil {
+		slog.Error("failed to load edges", slog.Any("error", err))
+		os.Exit(1)
+	}
+
 	var (
 		newDumpFilesCh = make(chan string)
 		newMainFilesCh = make(chan string)
 		newQuizCodesCh = make(chan string)
+		fileEdgeCh     = make(chan string)
 		errCh          = make(chan error)
 		wg             = &sync.WaitGroup{}
 		ctx, cancel    = signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -55,13 +62,14 @@ func main() {
 	go fileops.StartWatcher(cfg.DumpWatcherPath, cfg.WatcherIntervalSeconds, ctx, newDumpFilesCh, errCh)
 	go fileops.StartWatcher(cfg.SchoolPath, cfg.WatcherIntervalSeconds, ctx, newMainFilesCh, errCh)
 
-	// TODO: Add logics to establish backlinks every time it recieves a signal from MainWatcher
-
 	for range cfg.NumParseFileWorkers {
-		wg.Add(2)
+		wg.Add(3)
 		go gemini.ParseDumpFileWorker(cfg, ctx, wg, courses, newDumpFilesCh, errCh)
-		go gemini.ParseMainFileWorker(cfg, ctx, wg, caches, newMainFilesCh, errCh)
+		go gemini.ParseMainFileWorker(cfg, ctx, wg, caches, newMainFilesCh, errCh, fileEdgeCh)
+		go gemini.geminiEdgingWorker(cfg, ctx, wg, edges, fileEdgeCh, caches, errCh)
 	}
+
+	// TODO: close quit channel here
 
 	for range cfg.NumGenerateQuizWorkers {
 		wg.Add(1)

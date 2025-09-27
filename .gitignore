@@ -7,6 +7,8 @@ courses.json
 quizzes.json
 cache.json
 backlinks.json
+edges.json
+nodes.json
 
 ui/node_modules
 ui/.next
