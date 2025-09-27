@@ -27,9 +27,16 @@ func main() {
 		slog.Error("failed to load courses", slog.Any("error", err))
 		os.Exit(1)
 	}
+	
+	quizzes, err := data.LoadQuiz()
+	if err != nil {
+		slog.Error("failed to load quizzes", slog.Any("error", err)) // Erroring
+		os.Exit(1)
+	}
 
 	var (
 		newFilesCh  = make(chan string)
+		newQuizCodesCh = make(chan string) // Folders users want to generate quiz on 
 		errCh       = make(chan error)
 		wg          = &sync.WaitGroup{}
 		ctx, cancel = signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -42,6 +49,18 @@ func main() {
 		wg.Add(1)
 		go gemini.ParseFileWorker(cfg, ctx, wg, courses, newFilesCh, errCh)
 	}
+
+	// TODO: Refactor into config
+	const numGenerateQuizWorker = 5
+	
+	for range(numGenerateQuizWorker) {
+		wg.Add(1)
+		go gemini.GenerateQuizWorker(cfg, ctx, wg, quizzes, newQuizCodesCh, errCh)
+	}
+
+	// Dummy get request that gives a course code
+	const code = "CS370"
+	newQuizCodesCh <- code
 
 	heartbeat := time.NewTicker(time.Duration(cfg.HeartbeatIntervalSeconds) * time.Second)
 	defer heartbeat.Stop()
