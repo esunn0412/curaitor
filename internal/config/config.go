@@ -16,6 +16,7 @@ type Config struct {
 	NumParseFileWorkers      int
 	NumGenerateQuizWorkers   int
 	GeminiApiKey             string
+	ServerAddr               string
 }
 
 func New() (*Config, error) {
@@ -78,5 +79,6 @@ func defaultConfig() *Config {
 		WatcherIntervalSeconds:   5,
 		NumParseFileWorkers:      5,
 		NumGenerateQuizWorkers:   5,
+		ServerAddr:               ":9000",
 	}
 }

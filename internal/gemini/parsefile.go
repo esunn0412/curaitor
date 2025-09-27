@@ -104,6 +104,7 @@ func ParseFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup
 				errCh <- fmt.Errorf("failed to create directory %s: %w", destPath, err)
 				continue
 			}
+
 			if err := fileops.MoveFile(file, destPath, destFileName); err != nil {
 				errCh <- fmt.Errorf("failed to move file to %s: %w", destPath, err)
 				continue

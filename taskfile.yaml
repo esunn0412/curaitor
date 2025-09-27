@@ -3,8 +3,8 @@ version: 3
 tasks:
   clean:
     cmds:
-      - rm courses.json quizzes.json
-      - rm -rf school dump
+      - rm courses.json quizzes.json 2> /dev/null &
+      - rm -rf school dump 2> /dev/null &
       - mkdir school dump
     silent: true
 

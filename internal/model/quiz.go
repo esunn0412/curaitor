@@ -1,7 +1,7 @@
 package model
 
 type QuizInfo struct {
-	Code      string     `json:"code"`
-	NumFiles  int        `json:"numFiles"`
+	Code      string     `json:"course_code"`
+	// NumFiles  int        `json:"numFiles"`
 	Questions []Question `json:"questions"`
 }

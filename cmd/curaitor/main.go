@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"curaitor/internal/api"
 	"curaitor/internal/config"
 	"curaitor/internal/data"
 	"curaitor/internal/fileops"
 	"curaitor/internal/gemini"
+	"net/http"
 
 	"log/slog"
 	"os"
@@ -57,10 +59,15 @@ func main() {
 		go gemini.GenerateQuizWorker(cfg, ctx, wg, quizzes, newQuizCodesCh, errCh)
 	}
 
-	// Dummy get request that gives a course code
-	time.Sleep(20 * time.Second)
-	const code = "CS370"
-	newQuizCodesCh <- code
+	go func() {
+		slog.Info("server starting", slog.String("addr", cfg.ServerAddr))
+		http.HandleFunc("/courses", api.GetCoursesHandler(courses))
+		http.HandleFunc("/quiz", api.GetQuizHandler(quizzes, newQuizCodesCh))
+		if err := http.ListenAndServe(cfg.ServerAddr, nil); err != nil {
+			slog.Error("failed to listen and serve", slog.Any("error", err))
+			os.Exit(1)
+		}
+	}()
 
 	heartbeat := time.NewTicker(time.Duration(cfg.HeartbeatIntervalSeconds) * time.Second)
 	defer heartbeat.Stop()
