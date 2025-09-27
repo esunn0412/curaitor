@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-<<<<<<< HEAD
-import Nav from "@/component/nav";
+import Nav from "@/components/nav";
+import { CourseContextProvider } from "@/contexts/course-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,8 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-tl from-cyan-100 to-transparent`}
       >
-        <Nav />
-        {children}
+        <CourseContextProvider>
+          <Nav />
+          {children}
+        </CourseContextProvider>
       </body>
     </html>
   );
