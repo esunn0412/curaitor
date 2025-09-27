@@ -8,7 +8,7 @@ const CoursePage = async ({ params }: CoursePageProps) => {
     <main>
       <h1 className="text-4xl font-bold uppercase">{course}</h1>
       <div>
-
+        
         </div>
     </main>
   );
