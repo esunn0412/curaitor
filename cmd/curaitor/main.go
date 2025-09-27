@@ -55,6 +55,8 @@ func main() {
 	go fileops.StartWatcher(cfg.DumpWatcherPath, cfg.WatcherIntervalSeconds, ctx, newDumpFilesCh, errCh)
 	go fileops.StartWatcher(cfg.SchoolPath, cfg.WatcherIntervalSeconds, ctx, newMainFilesCh, errCh)
 
+	// TODO: Add logics to establish backlinks every time it recieves a signal from MainWatcher
+
 	for range cfg.NumParseFileWorkers {
 		wg.Add(2)
 		go gemini.ParseDumpFileWorker(cfg, ctx, wg, courses, newDumpFilesCh, errCh)
