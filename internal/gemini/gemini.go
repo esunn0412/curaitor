@@ -83,8 +83,11 @@ func prepMessageFromCache(prompt string, caches *data.CachedFiles) ([]*genai.Con
 			genai.NewPartFromText(fmt.Sprintf("File: %s", cf.FilePath)),
 		)
 		
-		
 		fileType, err := mimetype.DetectFile(cf.FilePath) 
+		if fileType.Is("text/plain") {
+			continue
+		}
+
 		if err != nil {
 			return nil, fmt.Errorf("failed to detect file type: %w", err)
 		}

@@ -122,6 +122,7 @@ const parseMainFilePrompt = `
 	- Do not include anything outside of the JSON array.
 	- Ensure the JSON is valid and properly escaped.
 	- Each markdown field should be a full Markdown document ready to save as a markdown file.
+	- Do not include a main title at the top of the markdown, as there will be one already. 
 
 	Now process the following files:
 
