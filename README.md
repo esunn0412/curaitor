@@ -21,13 +21,53 @@ In today's fast-paced learning environment, it's easy to get overwhelmed with th
 
 Curaitor is a monorepo with a Go backend and a Next.js frontend.
 
-### Backend
+### Backend (Go)
 
-The backend is written in Go and is responsible for the following:
+The backend is responsible for:  
 
-- **File Watching:** It watches for changes in your course material directories and automatically processes new or updated files.
-- **AI Integration:** It uses the Google Gemini API to generate quizzes and study guides.
-- **API:** It provides a RESTful API for the frontend to consume.
+#### Configuration (`internal/config`)
+- Loads all program configuration (e.g., Gemini API key, dump path) via environment variables.  
+#### File Operations (`internal/fileops`)
+- Directory watcher that monitors new/updated files.  
+- File move and organization logic.  
+- Directory tree builder (two-level deep). Example:  
+```
+CS101/ assignments/, homework/, exams/
+CS270/ notes/, labs/
+CS370/ (no subdirectories)
+```
+#### Gemini Integration (`internal/gemini`)
+- `prepMessage`: Prepares prompts by embedding file data.  
+- `sendMessage`: Sends requests to Gemini and returns responses.  
+- Handles structured extraction of file metadata (`FileInfo` model).  
+#### Application Data (`internal/data`)
+- Stores courses, quizzes, study guides.  
+- Writes updates to local JSON files (`courses.json`, `quizzes.json`, `cache.json`).  
+#### Caching System
+- Maintains a `cache.json` file to avoid re-parsing files.  
+- Tracks `CachedFile { FilePath, Content }` to ensure integrity in concurrent operations.  
+#### Quiz Generation (`gemini/generateQuiz.go`)
+- Workers listen for course signals via a channel.  
+- Each worker generates quiz questions from files in a course.  
+- Quiz data model:  
+```go
+type Question struct {
+  Question string
+  Choices  []string
+  Answer   int
+}
+type QuizInfo struct {
+  Name     string
+  Code     string
+  NumFiles int
+  QaPairs  []Question
+}
+```
+#### Study Guide Generation
+- Generates study guides **per course** instead of globally.  
+- Uses mutexes to avoid race conditions when multiple files are processed concurrently.  
+- Study guide is regenerated when a new file is added to a course’s directory.  
+---
 
 ### Frontend
 
@@ -37,3 +77,22 @@ The frontend is a Next.js application that provides a user-friendly interface fo
 - **Ant Design:** A UI library for React.
 - **React Markdown:** A component for rendering Markdown content.
 - **Vis Network:** A library for creating interactive network graphs.
+
+### Workflow
+1. File Dumping:
+   - Place course materials (syllabus, notes, assignments) into the dump_files_here directory.
+2. File Watching:
+   - A watcher checks the directory every 10 seconds and sends new file paths to a processing channel.
+3. File Processing (Concurrent):
+   - Workers extract metadata with Gemini:
+      - Syllabus: Creates a new course entry in courses.json.
+      - Other files: Assigns to the correct course and type; validates against existing course codes.
+4. File Organization:
+   - Files are moved to their respective directories:
+      - destpath = schoolpath + coursecode + filetype
+      - destfilename = (is syllabus? same name : fileinfo.Title)
+5. Caching:
+   - Before parsing, file content is checked against cache.json to avoid duplicate API calls.
+6. Quiz & Study Guide Generation:
+   - Quizzes are generated per course on demand.
+   - Study guides update whenever new course files are added.
