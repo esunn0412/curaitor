@@ -71,6 +71,7 @@ func main() {
 	mux.HandleFunc("/quiz", api.GetQuizHandler(quizzes, newQuizCodesCh))
 	mux.HandleFunc("/quiz/regenerate", api.RegenerateQuizHandler(newQuizCodesCh))
 	mux.HandleFunc("/files", api.GetFilesHandler(caches))
+	mux.HandleFunc("/study-guide", api.GetStudyGuide(cfg))
 
 	server := &http.Server{
 		Addr:    cfg.ServerAddr,

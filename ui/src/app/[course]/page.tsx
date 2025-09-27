@@ -7,6 +7,7 @@ import QuizButton from "@/components/quiz-button";
 import useQuizzes from "@/hooks/use-quizzes";
 import { use } from "react";
 import useCourses from "@/hooks/use-courses";
+import useStudyGuides from "@/hooks/use-study-guides";
 
 type CoursePageProps = {
   params: Promise<{ course: string }>;
@@ -39,39 +40,25 @@ const CoursePage = ({ params }: CoursePageProps) => {
       </h2>
       <QuizButton link={quizLink} data={data} />
 
-      <StudyGuide />
+      <StudyGuide course={course} />
     </main>
   );
 };
 
 export default CoursePage;
 
-const markdown = `
-## Heading
+type StudyGuideProps = {
+  course: string;
+};
 
-This is a sample markdown text.
+const StudyGuide = ({ course }: StudyGuideProps) => {
+  const studyGuides = useStudyGuides();
 
-### List
-
-Here is a list of items:
-
--   Item 1
--   Item 2
--   Item 3
-
-### Table
-
-| Column 1 | Column 2 | Column 3 |
-| --- | --- | --- |
-| Cell 1 | Cell 2 | Cell 3 |
-| Cell 4 | Cell 5 | Cell 6 |
-
- `;
-
-const StudyGuide = () => {
   return (
     <article className="study-guide">
-      <Markdown remarkPlugins={[remarkGfm]}>{markdown}</Markdown>
+      <Markdown remarkPlugins={[remarkGfm]}>
+        {studyGuides.find((s) => s.course === course)?.content}
+      </Markdown>
     </article>
   );
 };

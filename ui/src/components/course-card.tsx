@@ -28,7 +28,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
       <div className="flex gap-4 p-2">
         <Tag
           value={
-            files.filter((f) => f.file_path.includes(course.course_code)).length
+            files?.filter((f) => f.file_path.includes(course.course_code)).length
           }
           icon={FileIcon}
         />

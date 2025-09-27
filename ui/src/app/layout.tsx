@@ -6,6 +6,7 @@ import { CourseContextProvider } from "@/contexts/course-context";
 import FileGraph from "@/components/file-graph";
 import { QuizContextProvider } from "@/contexts/quiz-context";
 import { FileContextProvider } from "@/contexts/file-context";
+import { StudyGuideContextProvider } from "@/contexts/study-guide-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,11 +37,13 @@ export default function RootLayout({
         <CourseContextProvider>
           <QuizContextProvider>
             <FileContextProvider>
-              <Nav />
-              <div className="flex pt-16 h-full">
-                {children}
-                <FileGraph />
-              </div>
+              <StudyGuideContextProvider>
+                <Nav />
+                <div className="flex pt-16 h-full">
+                  {children}
+                  <FileGraph />
+                </div>
+              </StudyGuideContextProvider>
             </FileContextProvider>
           </QuizContextProvider>
         </CourseContextProvider>

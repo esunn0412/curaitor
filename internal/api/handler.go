@@ -1,10 +1,13 @@
 package api
 
 import (
+	"curaitor/internal/config"
 	"curaitor/internal/data"
 	"curaitor/internal/model"
 	"encoding/json"
 	"net/http"
+	"os"
+	"path/filepath"
 	"slices"
 )
 
@@ -86,6 +89,26 @@ func GetFilesHandler(caches *data.CachedFiles) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET")
 		w.Header().Set("Content-Type", "text/json")
+
+		_, err = w.Write(bytes)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}
+
+func GetStudyGuide(cfg *config.Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		course := r.URL.Query().Get("course")
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET")
+		w.Header().Set("Content-Type", "text/plain")
+
+		bytes, err := os.ReadFile(filepath.Join(cfg.SchoolPath, course, "STUDY_GUIDE.md"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 
 		_, err = w.Write(bytes)
 		if err != nil {

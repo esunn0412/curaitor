@@ -45,7 +45,6 @@ export const QuizContextProvider = ({
       const quizzes = await Promise.all(
         coursesData.map((course) => fetchQuiz(course.course_code)),
       );
-      console.log(coursesData.length, quizzes);
       setQuizData(quizzes);
       setIsLoaded(true);
     };
