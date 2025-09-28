@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BACKEND_PID=$(pgrep -f "go run ./cmd/curaitor/main.go")
+BACKEND_PID=$(lsof -ti :9000)
 
 if [ -n "$BACKEND_PID" ]; then
   echo "Found Go backend process with PID: $BACKEND_PID. Terminating..."
@@ -11,7 +11,7 @@ else
 fi
 
 
-FRONTEND_PID=$(pgrep -f "pnpm dev")
+FRONTEND_PID=$(lsof -ti :3000)
 
 if [ -n "$FRONTEND_PID" ]; then
   echo "Found pnpm dev process with PID: $FRONTEND_PID. Terminating..."
