@@ -28,8 +28,10 @@ export const CourseContextProvider = ({
 
   useEffect(() => {
     const fetchCourses = async () => {
-      const res = await fetch("http://localhost:9000/courses");
-      setCourseData((await res.json()) as Course[]);
+      try {
+        const res = await fetch("http://localhost:9000/courses");
+        setCourseData((await res.json()) as Course[]);
+      } catch {}
     };
     void fetchCourses();
   }, []);

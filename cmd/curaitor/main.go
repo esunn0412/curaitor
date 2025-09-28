@@ -63,13 +63,13 @@ func main() {
 	go fileops.StartWatcher(cfg.SchoolPath, cfg.WatcherIntervalSeconds, ctx, newMainFilesCh, errCh)
 
 	for range cfg.NumParseFileWorkers {
-		wg.Add(3)
+		wg.Add(2)
 		go gemini.ParseDumpFileWorker(cfg, ctx, wg, courses, newDumpFilesCh, errCh)
 		go gemini.ParseMainFileWorker(cfg, ctx, wg, caches, newMainFilesCh, errCh, fileEdgeCh)
-		go gemini.GeminiEdgingWorker(cfg, ctx, wg, *edges, fileEdgeCh, caches, errCh)
 	}
 
-	// TODO: close quit channel here
+	wg.Add(1)
+	go gemini.GeminiEdgingWorker(cfg, ctx, wg, *edges, fileEdgeCh, caches, errCh)
 
 	for range cfg.NumGenerateQuizWorkers {
 		wg.Add(1)
@@ -81,7 +81,8 @@ func main() {
 	mux.HandleFunc("/quiz", api.GetQuizHandler(quizzes, newQuizCodesCh))
 	mux.HandleFunc("/quiz/regenerate", api.RegenerateQuizHandler(newQuizCodesCh))
 	mux.HandleFunc("/files", api.GetFilesHandler(caches))
-	mux.HandleFunc("/study-guide", api.GetStudyGuide(cfg))
+	mux.HandleFunc("/study-guide", api.GetStudyGuideHandler(cfg))
+	mux.HandleFunc("/edges", api.GetEdgesHandler())
 
 	server := &http.Server{
 		Addr:    cfg.ServerAddr,

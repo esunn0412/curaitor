@@ -132,8 +132,12 @@ func parseFilePrompt(dirTreeStr string, coursesStr string) string {
 		"course_title": "Computer Science Practicum"
 		"desc": "Covers AI foundations including search, logic, and learning.",
 		"file_type": "assignment",
-		"title": "Homework3-Search-Algorithms"
+		"title": "search-algorithms"
 	}
+
+	Course code must contain no spaces, and any letter must be an uppercase.
+	Course title must be in title case, where every word starts with an uppercase letter.
+	Title of the file must be in kebab case, with a concise meaning that captures the content.
 
 	If the file IS a syllabus, leave "file_type" and "title" empty and return:
 
@@ -158,7 +162,7 @@ func parseFilePrompt(dirTreeStr string, coursesStr string) string {
 		"course_title": ""
 		"desc": "",
 		"file_type": "assignment",
-		"title": "Homework3-Search-Algorithms"
+		"title": "search-algorithms"
 	}
 
 	Rules for non-syllabus files:

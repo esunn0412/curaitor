@@ -10,8 +10,8 @@ import (
 )
 
 func StartWatcher(path string, watcherIntervalSeconds int, ctx context.Context, newFilesCh chan<- string, errCh chan<- error) {
-	w := watcher.New() 
-	w.FilterOps(watcher.Create) 
+	w := watcher.New()
+	w.FilterOps(watcher.Create)
 
 	if err := w.AddRecursive(path); err != nil {
 		errCh <- fmt.Errorf("failed to add watcher path: %w", err)
@@ -33,7 +33,7 @@ func watcherLoop(ctx context.Context, newFilesCh chan<- string, w *watcher.Watch
 		select {
 		case event := <-w.Event:
 			if !event.IsDir() {
-				slog.Info("file added", slog.String("file", event.Path))
+				slog.Info("file detected", slog.String("file", event.Path))
 				newFilesCh <- event.Path
 			}
 		case err := <-w.Error:

@@ -37,9 +37,11 @@ export const StudyGuideContextProvider = ({
 
     const fetchAllStudyGuide = async () => {
       if (!courses) return;
-      setStudyGuideData(
-        await Promise.all(courses.map((c) => fetchStudyGuide(c.course_code))),
-      );
+      try {
+        setStudyGuideData(
+          await Promise.all(courses.map((c) => fetchStudyGuide(c.course_code))),
+        );
+      } catch {}
     };
 
     void fetchAllStudyGuide();

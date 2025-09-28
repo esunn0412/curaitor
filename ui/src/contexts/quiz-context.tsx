@@ -42,11 +42,13 @@ export const QuizContextProvider = ({
 
     const fetchQuizzes = async () => {
       if (!coursesData) return;
-      const quizzes = await Promise.all(
-        coursesData.map((course) => fetchQuiz(course.course_code)),
-      );
-      setQuizData(quizzes);
-      setIsLoaded(true);
+      try {
+        const quizzes = await Promise.all(
+          coursesData.map((course) => fetchQuiz(course.course_code)),
+        );
+        setQuizData(quizzes);
+        setIsLoaded(true);
+      } catch {}
     };
 
     void fetchQuizzes();

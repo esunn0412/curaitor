@@ -53,12 +53,11 @@ type StudyGuideProps = {
 
 const StudyGuide = ({ course }: StudyGuideProps) => {
   const studyGuides = useStudyGuides();
+  const content = studyGuides.find((s) => s.course === course)?.content;
 
   return (
     <article className="study-guide">
-      <Markdown remarkPlugins={[remarkGfm]}>
-        {studyGuides.find((s) => s.course === course)?.content}
-      </Markdown>
+      {content && <Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown>}
     </article>
   );
 };

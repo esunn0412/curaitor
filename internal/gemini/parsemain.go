@@ -18,14 +18,14 @@ import (
 func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup, caches *data.CachedFiles, newMainFilesCh <-chan string, errCh chan<- error, fileEdgeCh chan<- string) {
 	defer wg.Done()
 	config := &genai.GenerateContentConfig{
-		ResponseMIMEType: "application/json", 
+		ResponseMIMEType: "application/json",
 		ResponseSchema: &genai.Schema{
-			Type: genai.TypeArray, 
+			Type: genai.TypeArray,
 			Items: &genai.Schema{
-				Type: genai.TypeObject, 
+				Type: genai.TypeObject,
 				Properties: map[string]*genai.Schema{
-					"course_code": {Type: "string"}, 
-					"markdown": {Type: "string"}, 
+					"course_code": {Type: "string"},
+					"markdown":    {Type: "string"},
 				},
 			},
 		},
@@ -34,6 +34,8 @@ func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitG
 	for {
 		select {
 		case file := <-newMainFilesCh:
+			fileEdgeCh <- file
+
 			c, err := os.ReadFile(file)
 			if err != nil {
 				errCh <- err
@@ -45,20 +47,38 @@ func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitG
 				continue
 			}
 
+			sumMsg, err := prepMessage("Summarize this file. Include details extensively.", file)
+			if err != nil {
+				errCh <- fmt.Errorf("failed to prep summarize prompt: %w", err)
+				continue
+			}
+
+			sumRes, err := sendMessage(cfg, ctx, sumMsg, nil)
+			if err != nil {
+				errCh <- fmt.Errorf("failed to summarize file: %w", err)
+				continue
+			}
+
 			caches.Add(model.CachedFile{
 				FilePath: file,
-				Content:  c,
+				Content:  sumRes,
 			})
 			if err := caches.Save(); err != nil {
 				errCh <- fmt.Errorf("failed to save cache: %w", err)
 			}
 
-			fileEdgeCh <- file
-			msg, err := prepMessageFromCache(parseMainFilePrompt, caches)
+			caches.Mu.Lock()
+			cacheBytes, err := json.Marshal(caches.CachedFiles)
+			if err != nil {
+				errCh <- fmt.Errorf("failed to marshal cache: %w", err)
+			}
+
+			msg, err := prepMessage(parseMainFilePrompt + string(cacheBytes))
 			if err != nil {
 				errCh <- fmt.Errorf("failed to prepare message for Gemini: %w", err)
 				continue
 			}
+			caches.Mu.Unlock()
 
 			res, err := sendMessage(cfg, ctx, msg, config)
 			if err != nil {
@@ -69,12 +89,12 @@ func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitG
 			var studyGuides []model.StudyGuide
 			mu := &sync.Mutex{}
 			mu.Lock()
-			
+
 			if err := json.Unmarshal([]byte(res), &studyGuides); err != nil {
 				errCh <- fmt.Errorf("failed to unmarshal Gemini response: %w", err)
 				continue
 			}
-			
+
 			for _, guide := range studyGuides {
 				studyGuidePath := filepath.Join(cfg.SchoolPath, guide.CourseCode, "STUDY_GUIDE.md")
 				if err := os.WriteFile(studyGuidePath, []byte(guide.Markdown), 0644); err != nil {
@@ -110,6 +130,7 @@ const parseMainFilePrompt = `
 	]
 
 	### Study guide requirements
+	- This must be a valid raw markdown string.
 	- Group files by course code (derived from directory structure or filename if present).
 	- Combine related files for the same course into a single study guide.
 	- Use Markdown features extensively: headings, bullet points, numbered lists, tables, and fenced code blocks where relevant.

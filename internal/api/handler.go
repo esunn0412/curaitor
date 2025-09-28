@@ -79,25 +79,20 @@ func RegenerateQuizHandler(newQuizCodesCh chan string) http.HandlerFunc {
 
 func GetFilesHandler(caches *data.CachedFiles) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		caches.Mu.Lock()
-		bytes, err := json.Marshal(caches.CachedFiles)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		caches.Mu.Unlock()
+		bytes, _ := os.ReadFile("cache.json")
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET")
 		w.Header().Set("Content-Type", "text/json")
 
-		_, err = w.Write(bytes)
+		_, err := w.Write(bytes)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
 }
 
-func GetStudyGuide(cfg *config.Config) http.HandlerFunc {
+func GetStudyGuideHandler(cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		course := r.URL.Query().Get("course")
 
@@ -111,6 +106,21 @@ func GetStudyGuide(cfg *config.Config) http.HandlerFunc {
 		}
 
 		_, err = w.Write(bytes)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}
+
+func GetEdgesHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		bytes, _ := os.ReadFile("edges.json")
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET")
+		w.Header().Set("Content-Type", "text/json")
+
+		_, err := w.Write(bytes)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}

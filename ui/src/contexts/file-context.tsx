@@ -28,16 +28,16 @@ export const FileContextProvider = ({
 
   useEffect(() => {
     const fetchFiles = async () => {
-      const res = await fetch("http://localhost:9000/files");
-      setFilesData((await res.json()) as CourseFile[]);
+      try {
+        const res = await fetch("http://localhost:9000/files");
+        setFilesData((await res.json()) as CourseFile[]);
+      } catch {}
     };
     void fetchFiles();
   }, []);
 
   return (
-    <FileContext.Provider
-      value={{ files: filesData, setFiles: setFilesData }}
-    >
+    <FileContext.Provider value={{ files: filesData, setFiles: setFilesData }}>
       {children}
     </FileContext.Provider>
   );

@@ -23,12 +23,15 @@ const CourseCard = ({ course }: CourseCardProps) => {
         <p className="font-bold mr-3 text-2xl uppercase">
           {course.course_code}
         </p>
-        <p className="text-secondary text-lg">{course.course_title}</p>
+        <p className="text-secondary text-lg truncate text-nowrap">
+          {course.course_title}
+        </p>
       </div>
       <div className="flex gap-4 p-2">
         <Tag
           value={
-            files?.filter((f) => f.file_path.includes(course.course_code)).length
+            files?.filter((f) => f.file_path.includes(course.course_code))
+              .length
           }
           icon={FileIcon}
         />

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-go run ./cmd/curaitor/main.go > ./backend.log 2>&1 &
+source .env && go run ./cmd/curaitor/main.go > ./backend.log 2>&1 &
 
-(cd ./ui && pnpm install && pnpm build && pnpm start) > ./frontend.log 2>&1 &
+(cd ./ui && pnpm install && pnpm dev) > ./frontend.log 2>&1 &

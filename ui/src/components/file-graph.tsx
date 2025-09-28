@@ -1,5 +1,7 @@
 "use client";
 
+import useEdges from "@/hooks/use-edges";
+import useFiles from "@/hooks/use-files";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import * as vis from "vis-network";
@@ -7,7 +9,23 @@ import * as vis from "vis-network";
 const FileGraph = () => {
   const graphRef = useRef(null);
   const pathname = usePathname();
+  const { files } = useFiles();
+  const edgesData = useEdges();
   const course = pathname.split("/")[1];
+
+  const nodes: vis.Node[] = files
+    ?.map((f) => {
+      const parts = f.file_path.split("/");
+      const rootIdx = parts.indexOf("school");
+      const label = parts.slice(rootIdx + 1).join("/");
+      return {
+        id: f.file_path,
+        label: label,
+      };
+    })
+    .filter((f) => !f.label.includes("DS_Store"));
+
+  const edges = edgesData?.map((e) => e as vis.Edge);
 
   useEffect(() => {
     if (!graphRef.current) return;
@@ -34,35 +52,12 @@ const FileGraph = () => {
       });
     });
     network.redraw();
-  }, [course]);
+  }, [course, nodes, edges]);
 
   return <div ref={graphRef} className="border-l basis-1/3"></div>;
 };
 
 export default FileGraph;
-
-const nodes: vis.Node[] = [
-  { id: 1, label: "CS370/lectures/lecture-1.pdf" },
-  { id: 2, label: "CS255/notes/note-3.pdf" },
-  { id: 3, label: "CS370/notes/note-3.pdf" },
-  { id: 4, label: "NBB302/lectures/lecture-11.pdf" },
-  { id: 5, label: "PSYC200W/lectures/lecture-5.pdf" },
-  { id: 6, label: "CS170/lectures/lecture-5.pdf" },
-  { id: 7, label: "CS170/lectures/lecture-12.pdf" },
-  { id: 8, label: "CS170/lectures/lecture-2.pdf" },
-  { id: 9, label: "CS170/lectures/lecture-4.pdf" },
-];
-
-const edges: vis.Edge[] = [
-  { from: 1, to: 3 },
-  { from: 1, to: 2 },
-  { from: 2, to: 4 },
-  { from: 2, to: 5 },
-  { from: 3, to: 3 },
-  { from: 9, to: 2 },
-  { from: 6, to: 3 },
-  { from: 5, to: 4 },
-];
 
 const options: vis.Options = {
   nodes: {
@@ -79,6 +74,11 @@ const options: vis.Options = {
     scaling: {
       min: 10,
       max: 30,
+    },
+  },
+  edges: {
+    color: {
+      color: "#3b82f6",
     },
   },
   interaction: {
