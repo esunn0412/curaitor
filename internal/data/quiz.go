@@ -110,7 +110,6 @@ func (q *Quiz) Add(quiz model.QuizInfo) {
 }
 
 func (q *Quiz) Save() error {
-	// TODO: Override old quiz for the same course code
 	q.Mu.Lock()
 	data, err := json.MarshalIndent(q.Quizzes, "", "  ")
 	q.Mu.Unlock()

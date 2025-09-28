@@ -15,7 +15,7 @@ import (
 	"google.golang.org/genai"
 )
 
-func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup, caches *data.CachedFiles, newMainFilesCh <-chan string, errCh chan<- error) {
+func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGroup, caches *data.CachedFiles, newMainFilesCh <-chan string, errCh chan<- error, fileEdgeCh chan<- string) {
 	defer wg.Done()
 	config := &genai.GenerateContentConfig{
 		ResponseMIMEType: "application/json", 
@@ -33,18 +33,18 @@ func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitG
 
 	for {
 		select {
-		case file := <- newMainFilesCh:
+		case file := <-newMainFilesCh:
 			c, err := os.ReadFile(file)
 			if err != nil {
 				errCh <- err
 				continue
 			}
-			
+
 			if len(c) == 0 {
 				slog.Warn("empty file, skipping", slog.String("file", file))
 				continue
 			}
-			
+
 			caches.Add(model.CachedFile{
 				FilePath: file,
 				Content:  c,
@@ -53,6 +53,7 @@ func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitG
 				errCh <- fmt.Errorf("failed to save cache: %w", err)
 			}
 
+			fileEdgeCh <- file
 			msg, err := prepMessageFromCache(parseMainFilePrompt, caches)
 			if err != nil {
 				errCh <- fmt.Errorf("failed to prepare message for Gemini: %w", err)
@@ -83,8 +84,7 @@ func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitG
 				slog.Info("study guide generated", slog.String("path", studyGuidePath))
 			}
 			mu.Unlock()
-
-		case <- ctx.Done(): 
+		case <-ctx.Done():
 			slog.Info("ParseMainFileWorker done")
 			return
 		}
