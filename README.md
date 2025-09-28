@@ -1,4 +1,4 @@
-<img src="./logo.png"></img>
+<img src="./logo.png" alt="logo"></img>
 
 # Curaitor
 
