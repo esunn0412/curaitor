@@ -67,7 +67,7 @@ type QuizInfo struct {
 - Generates study guides **per course** instead of globally.  
 - Uses mutexes to avoid race conditions when multiple files are processed concurrently.  
 - Study guide is regenerated when a new file is added to a course’s directory.  
----
+
 
 ### Frontend
 
@@ -77,6 +77,7 @@ The frontend is a Next.js application that provides a user-friendly interface fo
 - **Ant Design:** A UI library for React.
 - **React Markdown:** A component for rendering Markdown content.
 - **Vis Network:** A library for creating interactive network graphs.
+---
 
 ### Workflow
 1. File Dumping:
