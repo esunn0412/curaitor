@@ -1,3 +1,5 @@
+<img src="./logo.png"></img>
+
 # Curaitor
 
 Curaitor is a web-based application that helps you study more effectively. It takes your course materials, organizes them, and automatically generates quizzes to help you test your knowledge.
