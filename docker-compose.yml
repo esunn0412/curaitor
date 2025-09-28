@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    container_name: curaitor-backend
+    volumes:
+      - ./dump:/dump
+      - ./school:/school
+    environment:
+      - CURAITOR_DUMP_WATCHER_PATH=/dump
+      - CURAITOR_SCHOOL_PATH=/school
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+
+  frontend:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    container_name: curaitor-frontend
+    depends_on:
+      - backend
