@@ -7,9 +7,8 @@ import (
 	"curaitor/internal/model"
 	"encoding/json"
 	"fmt"
-	"io/fs"
 	"log/slog"
-	"path/filepath"
+	"os"
 	"sync"
 
 	"google.golang.org/genai"
@@ -40,25 +39,15 @@ func GenerateQuizWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGr
 				return
 			}
 
-			root := filepath.Join(cfg.SchoolPath, code)
-
-			var files []string
-
-			err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-				if err != nil {
-					slog.Error("Error retrieving file paths.")
-				}
-				if !d.IsDir() {
-					files = append(files, path)
-				}
-				return nil
-			})
+			cache, err := os.ReadFile("cache.json")
 			if err != nil {
-				errCh <- fmt.Errorf("failed to retrieve file paths: %w", err)
+				errCh <- fmt.Errorf("failed to load cache: %w", err)
+				continue
 			}
 
-			slog.Info("Start generating quiz")
-			msg, err := prepMessage(generateQuestionPrompt, files...)
+			slog.Info("quiz generation started", slog.String("course", code))
+
+			msg, err := prepMessage(generateQuestionPrompt + string(cache))
 			if err != nil {
 				errCh <- fmt.Errorf("failed to prepare message for Gemini: %w", err)
 				continue
@@ -76,14 +65,14 @@ func GenerateQuizWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitGr
 				continue
 			}
 
+			slog.Info("quiz generated", slog.String("course", code))
+
 			// iniatilize a quiz struct
-			var quiz model.QuizInfo
+			quiz := model.QuizInfo{}
 			quiz.Code = code
 			quiz.Questions = questions
 
-			// TODO: Handle the deletion of previous quiz
 			quizzes.Add(quiz)
-
 			if err := quizzes.Save(); err != nil {
 				errCh <- fmt.Errorf("failed to save courses: %w", err)
 			}

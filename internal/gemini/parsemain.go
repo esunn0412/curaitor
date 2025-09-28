@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/gabriel-vasile/mimetype"
 	"google.golang.org/genai"
 )
 
@@ -46,6 +47,16 @@ func ParseMainFileWorker(cfg *config.Config, ctx context.Context, wg *sync.WaitG
 				slog.Warn("empty file, skipping", slog.String("file", file))
 				continue
 			}
+
+			filetype, err := mimetype.DetectFile(file)
+			if err != nil {
+				errCh <- fmt.Errorf("failed to detect mime type: %w", err)
+			}
+			if filetype.Is("text/plain") {
+				continue
+			}
+
+			slog.Info("summarizing file", slog.String("file", file))
 
 			sumMsg, err := prepMessage("Summarize this file. Include details extensively.", file)
 			if err != nil {

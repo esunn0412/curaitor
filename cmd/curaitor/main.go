@@ -32,7 +32,7 @@ func main() {
 
 	quizzes, err := data.LoadQuiz()
 	if err != nil {
-		slog.Error("failed to load quizzes", slog.Any("error", err)) // Erroring
+		slog.Error("failed to load quizzes", slog.Any("error", err))
 		os.Exit(1)
 	}
 
@@ -55,7 +55,7 @@ func main() {
 		fileEdgeCh     = make(chan string)
 		errCh          = make(chan error)
 		wg             = &sync.WaitGroup{}
-		ctx, cancel    = signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+		ctx, cancel    = signal.NotifyContext(context.Background(), syscall.SIGKILL, syscall.SIGINT, syscall.SIGTERM)
 	)
 	defer cancel()
 

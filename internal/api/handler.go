@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"slices"
 )
 
 func GetCoursesHandler(courses *data.Courses) http.HandlerFunc {
@@ -35,25 +34,25 @@ func GetQuizHandler(quizzes *data.Quiz, newQuizCodesCh chan<- string) http.Handl
 		course := r.URL.Query().Get("course")
 
 		quizzes.Mu.Lock()
-		quizExists := slices.ContainsFunc(quizzes.Quizzes, func(quiz model.QuizInfo) bool {
-			return quiz.Code == course
-		})
-		if !quizExists {
-			newQuizCodesCh <- course
-		}
-
 		var quiz model.QuizInfo
+		quizExists := false
 		for _, q := range quizzes.Quizzes {
 			if q.Code == course {
 				quiz = q
+				quizExists = true
+				break
 			}
+		}
+		quizzes.Mu.Unlock()
+
+		if !quizExists {
+			newQuizCodesCh <- course
 		}
 
 		bytes, err := json.Marshal(quiz)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		quizzes.Mu.Unlock()
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET")

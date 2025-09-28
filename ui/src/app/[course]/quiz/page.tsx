@@ -12,7 +12,6 @@ type QuizPageProps = {
 const QuizPage = ({ params }: QuizPageProps) => {
   const { course } = use(params);
   const { quizzes } = useQuizzes();
-  const [isLoading, setIsLoading] = useState(true);
   const [regenerateTriggered, setRegenerateTriggered] = useState(false);
   const localQuizKey = `quiz-${course}`;
 
@@ -24,12 +23,10 @@ const QuizPage = ({ params }: QuizPageProps) => {
 
   useEffect(() => {
     const localData = localStorage.getItem(localQuizKey);
-    if (!localData) setIsLoading(true);
-    else {
-      setIsLoading(false);
+    if (localData) {
       setRegenerateTriggered(false);
     }
-  }, [regenerateTriggered, localQuizKey]);
+  }, [localQuizKey]);
 
   return (
     <main className="h-full">
@@ -49,7 +46,7 @@ const QuizPage = ({ params }: QuizPageProps) => {
         </button>
       </div>
 
-      {isLoading ? (
+      {regenerateTriggered ? (
         <div className="flex flex-col gap-2 items-center justify-center">
           Generating ...
           <Loader2Icon className="animate-spin" />
