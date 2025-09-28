@@ -7,7 +7,6 @@ import {
   CircleXIcon,
   SparklesIcon,
 } from "lucide-react";
-import { Z_UNKNOWN } from "zlib";
 
 type QuizButtonProps = {
   link: string;

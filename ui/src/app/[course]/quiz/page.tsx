@@ -29,7 +29,7 @@ const QuizPage = ({ params }: QuizPageProps) => {
       setIsLoading(false);
       setRegenerateTriggered(false);
     }
-  }, [regenerateTriggered]);
+  }, [regenerateTriggered, localQuizKey]);
 
   return (
     <main className="h-full">
