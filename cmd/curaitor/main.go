@@ -66,7 +66,7 @@ func main() {
 		wg.Add(3)
 		go gemini.ParseDumpFileWorker(cfg, ctx, wg, courses, newDumpFilesCh, errCh)
 		go gemini.ParseMainFileWorker(cfg, ctx, wg, caches, newMainFilesCh, errCh, fileEdgeCh)
-		go gemini.geminiEdgingWorker(cfg, ctx, wg, edges, fileEdgeCh, caches, errCh)
+		go gemini.GeminiEdgingWorker(cfg, ctx, wg, *edges, fileEdgeCh, caches, errCh)
 	}
 
 	// TODO: close quit channel here
@@ -115,6 +115,7 @@ func main() {
 			close(newDumpFilesCh)
 			close(newMainFilesCh)
 			close(newQuizCodesCh)
+			close(fileEdgeCh)
 			close(errCh)
 			wg.Wait()
 			return

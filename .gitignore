@@ -9,7 +9,6 @@ quizzes.json
 cache.json
 backlinks.json
 edges.json
-nodes.json
-
+*.log
 ui/node_modules
 ui/.next

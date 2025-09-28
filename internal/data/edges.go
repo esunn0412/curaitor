@@ -50,3 +50,26 @@ func loadEdges() ([]model.Edge, error) {
 	}
 	return edges, nil
 }
+
+func (e *Edges) Add(edges []model.Edge) {
+	e.Mu.Lock()
+	defer e.Mu.Unlock()
+	e.Edges = append(e.Edges, edges...)
+	slog.Info("edges added. ")
+}
+
+func (e *Edges) Save() error {
+	e.Mu.Lock()
+	data, err := json.MarshalIndent(e.Edges, "", "  ")
+	e.Mu.Unlock()
+
+	if err != nil {
+		return fmt.Errorf("failed to marshal edges: %w", err)
+	}
+
+	if err := os.WriteFile("edges.json", data, 0644); err != nil {
+		return fmt.Errorf("failed to write edges file: %w", err)
+	}
+
+	return nil
+}
